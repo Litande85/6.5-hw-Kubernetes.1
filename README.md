@@ -32,6 +32,13 @@ minikube start
 
 2-3.
 
+```bash
+# make your life easier by adding the following to your shell config:
+
+alias kubectl="minikube kubectl --"
+
+```
+
 ![checksystem](img/img2212222.png)
 
 
