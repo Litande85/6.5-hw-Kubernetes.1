@@ -37,6 +37,10 @@ minikube start
 
 alias kubectl="minikube kubectl --"
 
+# Проверка работы системных контейнеров
+
+kubectl get po -n kube-system
+
 ```
 
 ![checksystem](img/img2212222.png)
