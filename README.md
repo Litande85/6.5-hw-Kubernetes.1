@@ -28,7 +28,7 @@ sudo install minikube-linux-amd64 /usr/local/bin/minikube
 minikube start
 
 ```
-
+![minicubeinstall](img/img2212221.png)
 ------
 ### Задание 2
 
