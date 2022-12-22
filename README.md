@@ -29,6 +29,12 @@ minikube start
 
 ```
 ![minicubeinstall](img/img2212221.png)
+
+2-3.
+
+![checksystem](img/img2212222.png)
+
+
 ------
 ### Задание 2
 
