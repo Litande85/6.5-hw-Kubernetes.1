@@ -92,6 +92,50 @@ spec:
 
 ### *<a name="2"> Ответ к Заданию 2</a>*
 
+[mydeployment.yml](mydeployment.yml)
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+spec:
+  selector:
+    matchLabels:
+      app: redis
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: master
+        image: redis:6.0.13
+        ports:
+        - containerPort: 6379
+```
+[myservice.yml](myservice.yml)
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+spec:
+  type: ClusterIP
+  ports:
+  - port: 6379
+    targetPort: 6379
+    name: redis
+  selector:
+    app: redis
+```
+
+![kubectl](img/img2212231.png)
+
+![describepod](img/img2212232.png)
+
 
 ------
 ### Задание 3
@@ -107,8 +151,48 @@ spec:
 
 2. В качестве решения пришлите получившиеся команды.
 
-
 ### *<a name="3"> Ответ к Заданию 3</a>*
+
+
+```bash
+# на хосте
+kubectl exec -it redis-6b6c549bdc-7wj2z -- sh
+
+# в контейнере
+apt-get update && apt-get install procps
+ps aux
+```
+
+![ps](img/img2212233.png)
+
+
+```bash
+kubectl logs redis-6b6c549bdc-7wj2z
+```
+
+![logs](img/img2212234.png)
+
+
+```bash
+kubectl delete pod redis-6b6c549bdc-7wj2z
+kubectl delete deployment redis
+kubectl delete all --all
+```
+
+![delete](img/img2212235.png)
+
+```bash
+# Проброс порта
+
+kubectl port-forward redis-6b6c549bdc-zkdp6 6379:6379
+
+```
+![forward](img/img2212236.png)
+
+
+Проверка показала, что при установке ключей на хосте 127.0.0.1:6379, они сохраняются в контейнер:
+
+![check](img/img2212237.png)
 
 ------
 ## Дополнительные задания* (со звёздочкой)
