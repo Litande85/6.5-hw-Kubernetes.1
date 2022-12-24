@@ -396,6 +396,6 @@ kubectl apply -f ingress.yml
 kubectl rollout restart deployment nginx-deployment
 ```
 
-Теперь наш сайт доступен по адресу `nginx.info/test`, видим, что [service](nginx-service.yaml) чередует наши контенеры при обращении к сайту, рапределяя нагрузку на кластер миникуба.
+Теперь наш сайт не доступен по адресу `nginx.info`, но доступен по адресу `nginx.info/test` с префиксом, видим, что [service](nginx-service.yaml) чередует наши контейнеры при обращении к сайту, рапределяя нагрузку на кластер миникуба.
 
 ![curl2](img/img2212243.png)
