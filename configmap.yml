@@ -9,6 +9,6 @@ data:
       server_name             _;
       location / {
           add_header Content-Type text/plain;
-          return 200 'Hello from k8s';
+          return 200 'Hello from k8s, $hostname\n';
       }
     }

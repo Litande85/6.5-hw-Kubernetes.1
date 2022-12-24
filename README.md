@@ -224,3 +224,178 @@ location / {
 
 ### *<a name="4"> Ответ к Заданию 4*</a>*
 
+Информация с сайта: https://kubernetes.io/docs/tasks/access-application-cluster/ingress-minikube/
+
+Смотрим список addons для minikube
+
+```bash
+
+minikube addons list
+
+```
+
+Включаем контроллер ingress в minikube
+
+```bash
+#To enable the NGINX Ingress controller, run the following command:
+
+minikube addons enable ingress
+
+```
+
+Создаем манифесты
+
+[configmap.yml](configmap.yml)
+
+```yaml
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-conf
+data:
+  nginx.conf: |
+    server {
+      listen                  80;
+      server_name             _;
+      location / {
+          add_header Content-Type text/plain;
+          return 200 'Hello from k8s, $hostname\n';
+      }
+    }
+
+```
+
+
+[nginx.yaml](nginx.yaml)
+
+
+```yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.12
+        ports:
+          - containerPort: 80
+        volumeMounts:
+        - name: nginx-conf
+          mountPath: /etc/nginx/conf.d
+      volumes:
+      - name: nginx-conf
+        configMap:
+          name: nginx-conf
+
+```
+
+[nginx-service.yaml](nginx-service.yaml)
+
+```yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  selector:
+    app: nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
+
+```
+
+[ingress.yml](ingress.yml)
+
+```yaml
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-ingress
+  annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+    - host: nginx.info
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nginx-service
+                port:
+                  number: 80
+
+```
+
+Cоздаем и смотрим созданные объекты
+
+```bash
+
+kubectl apply -f configmap.yml -f nginx.yaml -f nginx-service.yaml -f ingress.yml
+kubectl get deployment
+kubectl get replicaset
+kubectl get po
+kubectl get service
+kubectl get ep
+kubectl get ingress
+
+```
+
+![apply](img/img2212241.png)
+
+
+Добавляем в `/etc/hosts` адрес и имя хоста, указанное в [ingress.yml](ingress.yml)
+
+```bash
+nano ingress.yml
+192.168.49.2 nginx.info
+```
+
+Проверяем доступность нашего сайта
+
+```bash
+curl nginx.info
+```
+
+![curl1](img/img2212242.png)
+
+
+Чтобы запросы шли по префиксу /test на наш сервис исправляем [ingress.yml](ingress.yml)
+
+```yaml
+ paths:
+          - path: /test
+            pathType: Prefix
+
+```
+
+Применяем изменения [ingress.yml](ingress.yml) и перезапускаем поды
+
+```bash
+kubectl apply -f ingress.yml
+kubectl rollout restart deployment nginx-deployment
+```
+
+Теперь наш сайт доступен по адресу `nginx.info/test`, видим, что [service](nginx-service.yaml) чередует наши контенеры при обращении к сайту, рапределяя нагрузку на кластер миникуба.
+
+![curl2](img/img2212243.png)
